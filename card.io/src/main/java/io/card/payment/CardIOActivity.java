@@ -55,7 +55,7 @@ import io.card.payment.ui.ViewUtil;
  *
  * @version 1.0
  */
-public final class CardIOActivity extends Activity {
+public final class CardIOActivity extends Activity implements CardIOScanDetection, CardIOCameraControl {
     /**
      * Boolean extra. Optional. Defaults to <code>false</code>. If set, the card will not be scanned
      * with the camera.
@@ -481,7 +481,7 @@ public final class CardIOActivity extends Activity {
                 mCardScanner = (CardScanner) cons.newInstance(new Object[] { this,
                         mFrameOrientation });
             } else {
-                mCardScanner = new CardScanner(this, mFrameOrientation);
+                mCardScanner = new CardScanner(this, mFrameOrientation, false);
             }
             mCardScanner.prepareScanner();
 
@@ -712,24 +712,6 @@ public final class CardIOActivity extends Activity {
     }
 
     /**
-     * Returns the String version of this SDK.  Please include the return value of this method in any support requests.
-     *
-     * @return The String version of this SDK
-     */
-    public static String sdkVersion() {
-        return BuildConfig.PRODUCT_VERSION;
-    }
-
-    /**
-     * Returns the time this SDK was built.
-     *
-     * @return the time this SDK was built
-     */
-    public static Date sdkBuildDate() {
-        return new Date(BuildConfig.BUILD_TIME);
-    }
-
-    /**
      * Utility method for decoding card bitmap
      *
      * @param intent - intent received in {@link Activity#onActivityResult(int, int, Intent)}
@@ -748,7 +730,12 @@ public final class CardIOActivity extends Activity {
 
     // end static
 
-    void onFirstFrame(int orientation) {
+    @Override
+    public Activity getActivity() {
+        return this;
+    }
+
+    public void onFirstFrame(int orientation) {
         SurfaceView sv = mPreview.getSurfaceView();
         if (mOverlay != null) {
             mOverlay.setCameraPreviewRect(new Rect(sv.getLeft(), sv.getTop(), sv.getRight(), sv
@@ -764,11 +751,11 @@ public final class CardIOActivity extends Activity {
         onEdgeUpdate(new DetectionInfo());
     }
 
-    void onEdgeUpdate(DetectionInfo dInfo) {
+    public void onEdgeUpdate(DetectionInfo dInfo) {
         mOverlay.setDetectionInfo(dInfo);
     }
 
-    void onCardDetected(Bitmap detectedBitmap, DetectionInfo dInfo) {
+    public void onCardDetected(Bitmap detectedBitmap, DetectionInfo dInfo) {
         try {
             Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
             vibrator.vibrate(VIBRATE_PATTERN, -1);
@@ -906,7 +893,7 @@ public final class CardIOActivity extends Activity {
     }
 
     // Called by OverlayView
-    void toggleFlash() {
+    public void toggleFlash() {
         setFlashOn(!mCardScanner.isFlashOn());
     }
 
@@ -917,7 +904,7 @@ public final class CardIOActivity extends Activity {
         }
     }
 
-    void triggerAutoFocus() {
+    public void triggerAutoFocus() {
         mCardScanner.triggerAutoFocus(true);
     }
 
@@ -941,7 +928,7 @@ public final class CardIOActivity extends Activity {
                 LayoutParams.MATCH_PARENT, Gravity.TOP));
         previewFrame.addView(mPreview);
 
-        mOverlay = new OverlayView(this, null, Util.deviceSupportsTorch(this));
+        mOverlay = new OverlayView(this, this, null, Util.deviceSupportsTorch(this));
         mOverlay.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT));
         if (getIntent() != null) {
