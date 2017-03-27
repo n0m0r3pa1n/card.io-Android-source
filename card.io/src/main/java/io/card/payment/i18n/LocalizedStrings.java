@@ -5,6 +5,7 @@ package io.card.payment.i18n;
  */
 
 import android.content.Intent;
+import android.os.Bundle;
 
 import java.util.Collection;
 
@@ -46,6 +47,10 @@ public final class LocalizedStrings {
      */
     public static void setLanguage(Intent intent) {
         i18nManager.setLanguage(intent.getStringExtra(CardIOActivity.EXTRA_LANGUAGE_OR_LOCALE));
+    }
+
+    public static void setLanguage(Bundle bundle) {
+        i18nManager.setLanguage(bundle.getString(CardIOActivity.EXTRA_LANGUAGE_OR_LOCALE, "EN"));
     }
 
     private static final I18nManager<StringKey> i18nManager;
