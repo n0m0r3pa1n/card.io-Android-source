@@ -1,7 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'io.codearte.nexus-staging'
 
 repositories {
     mavenCentral()
@@ -15,7 +13,7 @@ ext {
     build_time = new Date().format("MM/dd/yyyy HH:mm:ss Z")
     build_year = new Date().format("yyyy")
     product_name = "card.io-Android-SDK"
-    product_version = getBuildVersion()
+    product_version = 1
 }
 
 android {
@@ -25,10 +23,6 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion rootProject.ext.sdkVersion
-
-        buildConfigField "String", "PRODUCT_NAME", "\"${product_name}\""
-        buildConfigField "String", "PRODUCT_VERSION", "\"${product_version}\""
-        buildConfigField "String", "BUILD_TIME", "\"${build_time}\""
 
         consumerProguardFiles 'release-proguard.cfg'
 
@@ -141,10 +135,6 @@ android.libraryVariants.all { variant ->
         archives javadocJar, sourcesJar
     }
 
-    signing {
-        sign configurations.archives
-    }
-
     // these should be specified in the local.properties file as:
     // sonatypeUsername=xxxxxxx
     // sonatypePassword=yyyyyyy
@@ -154,11 +144,6 @@ android.libraryVariants.all { variant ->
     def sonatypeUsername = properties.getProperty('sonatypeUsername')
     def sonatypePassword = properties.getProperty('sonatypePassword')
 
-    nexusStaging {
-        packageGroup = "io.card"
-        username = sonatypeUsername
-        password = sonatypePassword
-    }
 
     uploadArchives {
         doFirst {
